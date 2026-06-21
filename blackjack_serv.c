@@ -1,7 +1,6 @@
 /*
  * blackjack_serv.c - 블랙잭 서버 (딜러 역할 자동 수행)
- * Computer Networks 텀프로젝트 (주제3: 자유주제)
- *
+ * 
  * 게임 흐름:
  *   1) 소켓 생성/바인드/리슨
  *   2) 플레이어 2명 accept
@@ -12,8 +11,6 @@
  *      d) 승패 판정 및 칩 정산
  *   4) 최종 승자 발표
  *
- * 컴파일: gcc -o serv blackjack_serv.c -lpthread
- * 실행:   ./serv
  */
 
 #include "blackjack.h"
@@ -78,7 +75,7 @@ int draw_card(void)
  * 두 플레이어가 동시에 베팅할 수 있도록 각각 스레드로 실행한다.
  * bet_mutex로 공유 변수 bet_count를 보호하고, 두 명 모두 완료 시
  * 조건 변수로 메인 스레드에 신호를 보낸다.
- * // AI(Claude) 도움을 받아 작성된 함수
+ * // AI 도움을 받아 작성된 함수
  */
 void *handle_betting(void *arg)
 {
@@ -174,6 +171,7 @@ void deal_initial_cards(void)
  * player_turn - HIT / STAND / DOUBLEDOWN 루프 처리
  * 첫 행동(패 2장)일 때는 YOUR_TURN_DD를 보내 더블다운 선택지를 표시한다.
  * 더블다운: 베팅금 2배 후 카드 1장만 받고 강제 스탠드.
+ * // AI 도움을 받아 작성된 함수
  */
 void player_turn(Player *p)
 {
@@ -329,7 +327,9 @@ void dealer_turn(void)
     }
 }
 
-/* ── 승패 판정 및 정산 ──────────────────────────────────── */
+/* ── 승패 판정 및 정산 ──────────────────────────────────── 
+* // AI 도움을 받아 작성된 함수
+*/
 
 void judge_n_settle(void)
 {
@@ -417,7 +417,7 @@ int main(void)
     }
     dealer_count = 0;
 
-    /* ① 플레이어 2명 accept */
+    /* 1. 플레이어 2명 accept */
     for (int i = 0; i < 2; i++) {
         clnt_addr_size = sizeof(clnt_addr);
         int clnt_sock = accept(serv_sock,
@@ -442,7 +442,7 @@ int main(void)
 
     srand((unsigned)time(NULL));
 
-    /* ② 게임 루프 — 한 명이라도 칩이 0이 되면 종료 */
+    /* 2. 게임 루프 — 한 명이라도 칩이 0이 되면 종료 */
     int round_num = 1;
 
     while (players[0].chips > 0 && players[1].chips > 0) {
@@ -466,7 +466,7 @@ int main(void)
         shuffle_deck(g_deck);
         g_deck_top = 0;
 
-        /* ③ 베팅 단계 */
+        /* 3. 베팅 단계 */
         printf("[서버] 베팅 단계\n");
         broadcast("INFO:======== 베팅 단계 ========\n");
 
@@ -487,25 +487,25 @@ int main(void)
                  players[0].current_bet, players[1].current_bet);
         broadcast(msg);
 
-        /* ④ 초기 카드 배분 */
+        /* 4. 초기 카드 배분 */
         broadcast("INFO:카드를 나눕니다!\n");
         deal_initial_cards();
 
-        /* ⑤ 플레이어1 턴 */
+        /* 5. 플레이어1 턴 */
         printf("[서버] 플레이어1 턴\n");
         broadcast("INFO:======== 플레이어1 턴 ========\n");
         player_turn(&players[0]);
 
-        /* ⑥ 플레이어2 턴 */
+        /* 6. 플레이어2 턴 */
         printf("[서버] 플레이어2 턴\n");
         broadcast("INFO:======== 플레이어2 턴 ========\n");
         player_turn(&players[1]);
 
-        /* ⑦ 딜러 턴 */
+        /* 7. 딜러 턴 */
         printf("[서버] 딜러 턴\n");
         dealer_turn();
 
-        /* ⑧ 승패 판정 및 칩 정산 */
+        /* 8. 승패 판정 및 칩 정산 */
         judge_n_settle();
 
         if (players[0].chips == 0 || players[1].chips == 0) break;
@@ -514,7 +514,7 @@ int main(void)
         sleep(2);
     }
 
-    /* ⑨ 게임 최종 결과 */
+    /* 9. 게임 최종 결과 */
     broadcast("INFO:\n======== 게임 종료 ========\n");
 
     if (players[0].chips > players[1].chips)

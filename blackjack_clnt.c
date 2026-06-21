@@ -8,8 +8,6 @@
  *   - YOUR_TURN 수신 시: HIT 또는 STAND 입력 후 전송
  *   - 그 외 메시지(INFO, CARD, SCORE 등)는 화면에 출력
  *
- * 컴파일: gcc -o clnt blackjack_clnt.c -lpthread
- * 실행:   ./clnt <서버IP>
  */
 
 #include "blackjack.h"
@@ -170,7 +168,7 @@ static void process_message(char *msg)
  * 한 줄씩 조립한 뒤 process_message()를 호출한다.
  * 서버 연결이 끊기면 exit(0)으로 프로그램을 종료한다.
  *
- * // AI(Claude) 도움을 받아 작성된 함수
+ * // AI 도움을 받아 작성된 함수
  */
 void *recv_loop(void *arg)
 {
